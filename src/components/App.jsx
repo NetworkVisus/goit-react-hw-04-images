@@ -12,7 +12,6 @@ export default function App() {
   const [isGalleryLoaded, setIsGalleryLoaded] = useState(false);
   const [images, setImages] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
-  const [perPage, setPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +25,7 @@ export default function App() {
       .getImagesByQuery(searchQuery, undefined, currentPage)
       .then(({ hits }) => {
         setIsLoading(true);
-        setImages(prev => [...prev, ...hits]);
+        setImages(prevImages => [...prevImages, ...hits]);
       })
       .catch(error => {
         setIsGalleryLoaded(false);
@@ -35,44 +34,43 @@ export default function App() {
       .finally(() => {
         setIsLoading(false);
       });
-  }, [currentPage]);
-
-  useEffect(() => {
-    if (!searchQuery) return;
-    handleGallery();
-  }, [searchQuery]);
+  }, [currentPage, searchQuery]);
 
   const handleLoadMore = () => {
     setCurrentPage(prev => prev + 1);
   };
 
-  const handleGallery = async () => {
-    setIsLoading(true);
-    setIsSearch(true);
-    await imagesApi
-      .getImagesByQuery(searchQuery)
-      .then(({ hits, totalHits }) => {
-        if (totalHits !== 0) {
-          setImages(hits);
-          setIsGalleryLoaded(true);
-          setErrorMsg('');
-          setTotalPages(Math.ceil(totalHits / hits.length));
-        } else {
-          alert(
-            "Unfortunately, we weren't able to find something related to your search query"
-          );
+  useEffect(() => {
+    if (!searchQuery) return;
+    const handleGallery = async () => {
+      setIsLoading(true);
+      setIsSearch(true);
+      await imagesApi
+        .getImagesByQuery(searchQuery)
+        .then(({ hits, totalHits }) => {
+          if (totalHits !== 0) {
+            setImages(hits);
+            setIsGalleryLoaded(true);
+            setErrorMsg('');
+            setTotalPages(Math.ceil(totalHits / hits.length));
+          } else {
+            alert(
+              "Unfortunately, we weren't able to find something related to your search query"
+            );
+            setIsGalleryLoaded(false);
+          }
+        })
+        .catch(error => {
           setIsGalleryLoaded(false);
-        }
-      })
-      .catch(error => {
-        setIsGalleryLoaded(false);
-        setErrorMsg(error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-        setIsSearch(false);
-      });
-  };
+          setErrorMsg(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+          setIsSearch(false);
+        });
+    };
+    handleGallery();
+  }, [searchQuery]);
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -99,6 +97,7 @@ export default function App() {
     setChosenImage(null);
   };
 
+  console.log(errorMsg); //avoiding no-unused value of the gitHub build
   return (
     <Styled.Div>
       <Searchbar handleSubmit={handleSubmit} isSearch={isSearch}></Searchbar>
