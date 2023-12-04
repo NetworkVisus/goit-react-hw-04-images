@@ -14,7 +14,7 @@ export const Modal = ({ image, modalClose }) => {
     return () => {
       document.removeEventListener('keydown', handleEsc);
     };
-  }, []);
+  }, [handleEsc]); //I've added handleEsc to dependency, only because gitHub was complaining about it
 
   return (
     <Styled.Overlay onClick={backDropClose}>
