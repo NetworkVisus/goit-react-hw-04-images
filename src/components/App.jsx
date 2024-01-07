@@ -38,6 +38,7 @@ export default function App() {
 
   const handleLoadMore = () => {
     setCurrentPage(prev => prev + 1);
+    setIsLoading(true);
   };
 
   useEffect(() => {
@@ -75,6 +76,10 @@ export default function App() {
   const handleSubmit = e => {
     e.preventDefault();
     const searchQueryValue = e.target.elements.searchQuery.value.trim();
+    if (searchQuery === searchQueryValue) {
+      alert('Try to change your query');
+      return;
+    }
     if (searchQueryValue === '') {
       alert(
         "Seems like, you haven't entered anything, please, write your query"
@@ -83,6 +88,7 @@ export default function App() {
     }
     setSearchQuery(searchQueryValue);
     setIsGalleryLoaded(false);
+    setCurrentPage(1);
   };
 
   const handleModal = e => {
